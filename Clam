@@ -1,0 +1,94 @@
+package ccwong_mmlam;
+
+import robocode.*;
+import java.awt.Color;
+import robocode.AdvancedRobot;
+import robocode.ScannedRobotEvent;
+
+/**
+ * Clam - a robot by Claire Wong, Michelle Lam
+ */
+public class Clam extends AdvancedRobot
+{
+	double previousEnergy=100;
+	int movementDirection=1;
+	boolean movingForward;
+	
+	/**
+	 * run: Clam's default behavior
+	 */
+	public void run() {
+
+		setColors(Color.blue,Color.red,Color.green); // body,gun,radar
+
+		while (true) {
+    	movingForward = true;
+			setTurnRight(10000);
+			setMaxVelocity(5);  //max speed
+			ahead(10000);
+		} // robot's main loop
+	}
+
+	/**
+	 * onScannedRobot: What to do when you see another robot
+	 */
+	public void onScannedRobot(ScannedRobotEvent e) {
+		fire(getEnergy()/10);
+		double changeInEnergy = previousEnergy-e.getEnergy();
+    	if (changeInEnergy>0 && changeInEnergy<=3) {
+         	movementDirection = -movementDirection;  //dodge
+         	setAhead((e.getDistance()/4+25)*movementDirection);
+		  }
+     	previousEnergy = e.getEnergy();
+		if (e.getEnergy() < 50)
+			fire(3);
+		if (e.getDistance() < 100) {
+			if (e.getBearing() > -90 && e.getBearing() <= 90) {
+				back(10000);
+				setTurnRight(1000);
+			} 
+			else {
+				setTurnRight(1000);
+			}
+		}
+	}
+	
+	/**
+	 * onHitByBullet: What to do when you're hit by a bullet
+	 */
+	public void onHitByBullet(HitByBulletEvent e) {
+		setBack(100);
+		setTurnRight(10000);
+	}
+	
+	/**
+	 * onHitWall: What to do when you hit a wall
+	 */
+	public void onHitWall(HitWallEvent e) {
+ 		movementDirection =- movementDirection;
+	}
+  
+    public void onHitRobot(HitRobotEvent e) {
+  		reverseDirection();
+    }
+  
+    public void reverseDirection() {
+    	if(movingForward) {
+    		setTurnLeft(300);
+			setMaxVelocity(5);
+			setBack(300);
+    		movingForward = false; 
+    	} 
+		else {
+    	setAhead(300);
+		movingForward = true;
+    	}
+ 	}  
+}
+
+
+
+
+
+
+
